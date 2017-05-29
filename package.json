@@ -5,7 +5,7 @@
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy:production": "serverless deploy --stage production",
+    "deploy:production": "NODE_ENV=production serverless deploy --stage production",
     "logs:production": "NODE_ENV=production serverless logs --stage production -f",
     "start": "serverless offline start --port 8000 --prefix dev"
   },
