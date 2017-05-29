@@ -2,8 +2,8 @@
 node_modules
 jspm_packages
 
-# dot file
-.env_prod
+# config files
+config/production.js
 
 # Serverless directories
 .serverless

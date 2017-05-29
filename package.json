@@ -5,13 +5,13 @@
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy:production": "env-cmd ./.env_prod serverless deploy --stage production",
-    "start": "env-cmd ./.env_dev serverless offline start --port 8000 --prefix dev"
+    "deploy:production": "serverless deploy --stage production",
+    "logs:production": "NODE_ENV=production serverless logs --stage production -f",
+    "start": "serverless offline start --port 8000 --prefix dev"
   },
   "author": "Francesco Agosti",
   "license": "ISC",
   "devDependencies": {
-    "env-cmd": "^5.1.0",
     "serverless-offline": "^3.14.0"
   },
   "dependencies": {

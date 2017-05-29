@@ -1,6 +1,7 @@
 'use strict';
 
-const stripe = require("stripe")(process.env.STRIPE_KEY);
+const config = require("./config");
+const stripe = require("stripe")(config.STRIPE_KEY);
 const dbClient = require("./db/dynamodb.js").client;
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
