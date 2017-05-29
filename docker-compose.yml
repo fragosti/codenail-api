@@ -1,0 +1,4 @@
+dynamodb:
+  image: peopleperhour/dynamodb:latest
+  ports:
+    - "8001:8000"
