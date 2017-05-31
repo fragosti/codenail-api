@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const AWS = require("aws-sdk");
 
 AWS.config.update({
@@ -7,4 +8,6 @@ AWS.config.update({
 
 module.exports.dynamodb = new AWS.DynamoDB();
 
-module.exports.client = new AWS.DynamoDB.DocumentClient();
+const client = new AWS.DynamoDB.DocumentClient();
+
+module.exports.client = Promise.promisifyAll(client)

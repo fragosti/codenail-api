@@ -1,9 +1,12 @@
 'use strict';
 
+const Promise = require('bluebird');
 const config = require("./config");
 const stripe = require("stripe")(config.STRIPE_KEY);
+const createCharge = Promise.promisify(stripe.charges.create, { context: stripe.charges })
 const dbClient = require("./db/dynamodb.js").client;
 const { respond, respondError, respondWarning} = require('./util/respond.js');
+
 
 module.exports.hello = (event, context, callback) => {
   const response = {
@@ -32,45 +35,39 @@ module.exports.order = (event, content, callback) => {
 }
 
 const createOrder = (callback, token, price, description, options) => {
-  // TODO: promisify
-  const charge = stripe.charges.create({
+  createCharge({
     amount: price,
     currency: "usd",
     description: description,
     source: token.id,
-  }, (error, charge) => {
-    if (error) {
-      respondError(callback, { error })
-      console.log(error)
-      return
-    } 
-    dbClient.put({
+  })
+  .then((charge) => {
+    return dbClient.putAsync({
       TableName: 'codenail-orders',
       Item: {
         token: token.id,
+        charge,
         options
       }
-    }, (error, data) => {
-      if (error) {
-        respondError(callback, { error })
-        console.log(error)
-        return
-      }
-      respond(callback, { message: `Processed order: ${token.id} `})
     })
-  });
+  })
+  .then((data) => {
+    respond(callback, { message: `Processed order: ${token.id} `})
+  })
+  .catch((error) => {
+    respondError(callback, { error })
+    console.log(error)
+  })
 }
 
 const getOrder = (callback, id) => {
-  dbClient.get({
+  dbClient.getAsync({
     TableName: 'codenail-orders',
     Key: { token: id },
-  }, (error, data) => {
-    if (error) {
-      console.log(error)
-      respondError(callback, { error })
-      return
-    }
-    respond(callback, data.Item)
+  })
+  .then(data => respond(callback, data.Item))
+  .catch((error) => {
+    respondError(callback, { error })
+    console.log(error)
   })
 }
