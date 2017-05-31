@@ -7,7 +7,5 @@ const getConfig = (env) => {
       return require('./development.js')
   }
 }
-console.log(process.env.NODE_ENV)
 const config = getConfig(process.env.NODE_ENV)
-console.log(config)
 module.exports = config

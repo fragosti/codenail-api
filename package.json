@@ -7,9 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy:production": "NODE_ENV=production serverless deploy --stage production",
     "logs:production": "NODE_ENV=production serverless logs --stage production -f",
-    "start": "NODE_ENV=development serverless offline start --port 8000 --prefix dev",
-    "config-for-production": "NODE_ENV=production node config/index.js",
-    "config-for-development": "NODE_ENV=development node config/index.js"
+    "start": "NODE_ENV=development serverless offline start --port 8000 --prefix dev"
   },
   "author": "Francesco Agosti",
   "license": "ISC",
