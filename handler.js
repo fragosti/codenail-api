@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const config = require("./config");
 const stripe = require("stripe")(config.STRIPE_KEY);
+const webshot = Promise.promisify(require('webshot'));
 const createCharge = Promise.promisify(stripe.charges.create, { context: stripe.charges })
 const dbClient = require("./db/dynamodb.js").client;
 const { respond, respondError, respondWarning} = require('./util/respond.js');
@@ -52,6 +53,15 @@ const createOrder = (callback, token, price, description, options) => {
     })
   })
   .then((data) => {
+    return webshot(`${config.SITE_ADDR}/render/${token.id}`, `${token.id}.png`, {
+      windowSize: {
+        width: options.width*3,
+        height: options.height*3,
+      },
+      renderDelay: 3000,
+    })
+  })
+  .then(() => {
     respond(callback, { message: `Processed order: ${token.id} `})
   })
   .catch((error) => {
