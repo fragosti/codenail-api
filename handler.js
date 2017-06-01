@@ -2,10 +2,9 @@
 
 const Promise = require('bluebird');
 const config = require('./config');
-const stripe = require('stripe')(config.STRIPE_KEY);
 const webshot = Promise.promisify(require('webshot'));
 const fs = Promise.promisifyAll(require("fs"));
-const createCharge = Promise.promisify(stripe.charges.create, { context: stripe.charges })
+const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
 const s3 = require('./lib/s3.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
@@ -14,17 +13,17 @@ const { respond, respondError, respondWarning} = require('./util/respond.js');
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
-      const { token, price, description, options } = JSON.parse(event.body);
-      return createOrder(callback, token, price, description, options)
+      const { token, isTest, price, description, options } = JSON.parse(event.body);
+      return createOrder(callback, token, price, description, options, isTest)
     case 'GET':
       const { id } = event.pathParameters
       return getOrder(callback, id)
   }
 }
 
-const createOrder = (callback, token, price, description, options) => {
+const createOrder = (callback, token, price, description, options, isTest) => {
   const fileName = `${token.id}.png`
-  createCharge({
+  createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
     description: description,

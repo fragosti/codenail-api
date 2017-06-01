@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy:production": "NODE_ENV=production serverless deploy --stage production",
+    "deploy-function:production": "NODE_ENV=production serverless deploy function --stage production --function",
     "logs:production": "NODE_ENV=production serverless logs --stage production -f",
     "start": "NODE_ENV=development serverless offline start --port 8000 --prefix dev"
   },
