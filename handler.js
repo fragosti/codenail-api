@@ -47,6 +47,7 @@ const createOrder = (callback, token, price, description, options) => {
         height: options.height*3,
       },
       renderDelay: 3000,
+      phantomPath: config.PHANTOM_PATH,
     })
   })
   .then(() => fs.readFileAsync(fileName))

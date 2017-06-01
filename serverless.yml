@@ -25,6 +25,10 @@ provider:
 #  stage: dev
   region: us-west-2
 
+package:
+  exclude:
+    - bin/phantomjs-mac
+
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
 #    - Effect: "Allow"
