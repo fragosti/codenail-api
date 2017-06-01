@@ -4,20 +4,12 @@ const Promise = require('bluebird');
 const config = require('./config');
 const stripe = require('stripe')(config.STRIPE_KEY);
 const webshot = Promise.promisify(require('webshot'));
+const fs = Promise.promisifyAll(require("fs"));
 const createCharge = Promise.promisify(stripe.charges.create, { context: stripe.charges })
 const dbClient = require('./db/dynamodb.js').client;
 const s3 = require('./lib/s3.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
-
-s3.createBucketAsync({
-  Bucket: 'codenail-order-screenshots'
-})
-.catch((error) => {
-  if (error.code !== 'BucketAlreadyOwnedByYou') {
-    console.log(error)
-  }
-})
 
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
@@ -31,6 +23,7 @@ module.exports.order = (event, content, callback) => {
 }
 
 const createOrder = (callback, token, price, description, options) => {
+  const fileName = `${token.id}.png`
   createCharge({
     amount: price,
     currency: 'usd',
@@ -48,7 +41,7 @@ const createOrder = (callback, token, price, description, options) => {
     })
   })
   .then((data) => {
-    return webshot(`${config.SITE_ADDR}/render/${token.id}`, `${token.id}.png`, {
+    return webshot(`${config.SITE_ADDR}/render/${token.id}`, fileName, {
       windowSize: {
         width: options.width*3,
         height: options.height*3,
@@ -56,12 +49,21 @@ const createOrder = (callback, token, price, description, options) => {
       renderDelay: 3000,
     })
   })
+  .then(() => fs.readFileAsync(fileName))
+  .then((screenShot) => {
+    return s3.putObjectAsync({
+      Bucket: 'codenail-order-screenshots',
+      Key: fileName,
+      Body: screenShot,
+      ContentType: 'image/png',
+    })
+  })
   .then(() => {
     respond(callback, { message: `Processed order: ${token.id} `})
   })
   .catch((error) => {
-    respondError(callback, { error })
     console.log(error)
+    respondError(callback, { error })
   })
 }
 
