@@ -1,28 +1,23 @@
 'use strict';
 
 const Promise = require('bluebird');
-const config = require("./config");
-const stripe = require("stripe")(config.STRIPE_KEY);
+const config = require('./config');
+const stripe = require('stripe')(config.STRIPE_KEY);
 const webshot = Promise.promisify(require('webshot'));
 const createCharge = Promise.promisify(stripe.charges.create, { context: stripe.charges })
-const dbClient = require("./db/dynamodb.js").client;
+const dbClient = require('./db/dynamodb.js').client;
+const s3 = require('./lib/s3.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 
-module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
-
-  callback(null, response);
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
-};
+s3.createBucketAsync({
+  Bucket: 'codenail-order-screenshots'
+})
+.catch((error) => {
+  if (error.code !== 'BucketAlreadyOwnedByYou') {
+    console.log(error)
+  }
+})
 
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
@@ -38,7 +33,7 @@ module.exports.order = (event, content, callback) => {
 const createOrder = (callback, token, price, description, options) => {
   createCharge({
     amount: price,
-    currency: "usd",
+    currency: 'usd',
     description: description,
     source: token.id,
   })
