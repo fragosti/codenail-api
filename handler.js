@@ -41,10 +41,11 @@ const createOrder = (callback, token, price, description, options, isTest) => {
     })
   })
   .then((data) => {
-    return webshot(`${config.SITE_ADDR}/render/${token.id}`, filePath, {
+    const zoom = 4
+    return webshot(`${config.SITE_ADDR}/render/${token.id}?zoom=${zoom}`, filePath, {
       windowSize: {
-        width: options.width*3,
-        height: options.height*3,
+        width: options.width*zoom,
+        height: options.height*zoom,
       },
       renderDelay: 3000,
       phantomPath: config.PHANTOM_PATH,
