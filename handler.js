@@ -23,6 +23,7 @@ module.exports.order = (event, content, callback) => {
 
 const createOrder = (callback, token, price, description, options, isTest) => {
   const fileName = `${token.id}.png`
+  const filePath = `/tmp/${fileName}`
   createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
@@ -40,7 +41,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
     })
   })
   .then((data) => {
-    return webshot(`${config.SITE_ADDR}/render/${token.id}`, fileName, {
+    return webshot(`${config.SITE_ADDR}/render/${token.id}`, filePath, {
       windowSize: {
         width: options.width*3,
         height: options.height*3,
@@ -49,7 +50,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
       phantomPath: config.PHANTOM_PATH,
     })
   })
-  .then(() => fs.readFileAsync(fileName))
+  .then(() => fs.readFileAsync(filePath))
   .then((screenShot) => {
     return s3.putObjectAsync({
       Bucket: 'codenail-order-screenshots',
