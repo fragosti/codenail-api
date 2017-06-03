@@ -6,6 +6,7 @@ const webshot = Promise.promisify(require('webshot'));
 const fs = Promise.promisifyAll(require("fs"));
 const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
+const sharp = require('sharp');
 const s3 = require('./lib/s3.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
@@ -24,6 +25,7 @@ module.exports.order = (event, content, callback) => {
 const createOrder = (callback, token, price, description, options, isTest) => {
   const fileName = `${token.id}.png`
   const filePath = `/tmp/${fileName}`
+  const { width, height } = options
   createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
@@ -44,8 +46,8 @@ const createOrder = (callback, token, price, description, options, isTest) => {
     const zoom = 4
     return webshot(`${config.SITE_ADDR}/render/${token.id}?zoom=${zoom}`, filePath, {
       windowSize: {
-        width: options.width*zoom,
-        height: options.height*zoom,
+        width: width*zoom,
+        height: height*zoom,
       },
       renderDelay: 3000,
       phantomPath: config.PHANTOM_PATH,
@@ -57,6 +59,15 @@ const createOrder = (callback, token, price, description, options, isTest) => {
       Bucket: 'codenail-order-screenshots',
       Key: fileName,
       Body: screenShot,
+      ContentType: 'image/png',
+    })
+  })
+  .then(() => sharp(filePath).resize(Math.round(width), Math.round(height)).toBuffer())
+  .then((orderPreview) => {
+    return s3.putObjectAsync({
+      Bucket: 'codenail-order-previews',
+      Key: fileName,
+      Body: orderPreview,
       ContentType: 'image/png',
     })
   })
