@@ -53,26 +53,30 @@ const createOrder = (callback, token, price, description, options, isTest) => {
       phantomPath: config.PHANTOM_PATH,
     })
   })
-  .then(() => fs.readFileAsync(filePath))
-  .then((screenShot) => {
-    return s3.putObjectAsync({
-      Bucket: 'codenail-order-screenshots',
-      Key: fileName,
-      Body: screenShot,
-      ContentType: 'image/png',
+  .then(() => Promise.all([
+    fs.readFileAsync(filePath).then((screenShot) => {
+      return s3.putObjectAsync({
+        Bucket: 'codenail-order-screenshots',
+        Key: fileName,
+        Body: screenShot,
+        ContentType: 'image/png',
+      })
+    }),
+    sharp(filePath).resize(Math.round(width), Math.round(height)).toBuffer()
+    .then((orderPreview) => {
+      return s3.putObjectAsync({
+        Bucket: 'codenail-order-previews',
+        Key: fileName,
+        Body: orderPreview,
+        ContentType: 'image/png',
+      })
     })
-  })
-  .then(() => sharp(filePath).resize(Math.round(width), Math.round(height)).toBuffer())
-  .then((orderPreview) => {
-    return s3.putObjectAsync({
-      Bucket: 'codenail-order-previews',
-      Key: fileName,
-      Body: orderPreview,
-      ContentType: 'image/png',
-    })
-  })
+  ]))
   .then(() => {
-    respond(callback, { message: `Processed order: ${token.id} `})
+    respond(callback, { 
+      message: `Processed order`,
+      id: token.id
+    })
   })
   .catch((error) => {
     console.log(error)
