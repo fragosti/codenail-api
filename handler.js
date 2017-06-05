@@ -37,6 +37,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
       TableName: 'codenail-orders',
       Item: {
         token: token.id,
+        email: token.email,
         charge,
         options
       }
