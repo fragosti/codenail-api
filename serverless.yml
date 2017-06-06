@@ -20,6 +20,8 @@ service: codenail-api
 provider:
   name: aws
   runtime: nodejs6.10
+  environment:
+    HOME: /var/task
 
 # you can overwrite defaults here
 #  stage: dev
