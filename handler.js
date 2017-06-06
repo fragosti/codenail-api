@@ -6,7 +6,7 @@ const webshot = Promise.promisify(require('webshot'));
 const fs = Promise.promisifyAll(require("fs"));
 const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
-const sharp = require('sharp');
+const img = require('./util/image.js');
 const s3 = require('./lib/s3.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
@@ -63,7 +63,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
         ContentType: 'image/png',
       })
     }),
-    sharp(filePath).resize(Math.round(width), Math.round(height)).toBuffer()
+    img.resize(filePath, Math.round(width), Math.round(height))
     .then((orderPreview) => {
       return s3.putObjectAsync({
         Bucket: 'codenail-order-previews',
