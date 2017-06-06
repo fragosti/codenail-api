@@ -68,6 +68,7 @@ functions:
           method: get
   order:
     handler: handler.order
+    timeout: 20
     events:
       - http: 
           path: order
