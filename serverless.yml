@@ -60,12 +60,6 @@ package:
 plugins:
   - serverless-offline
 functions:
-  hello:
-    handler: handler.hello
-    events:
-      - http: 
-          path: hello
-          method: get
   order:
     handler: handler.order
     timeout: 20
