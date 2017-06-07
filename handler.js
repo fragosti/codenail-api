@@ -46,14 +46,15 @@ const createOrder = (callback, token, price, description, options, isTest) => {
     })
   })
   .then((data) => {
-    const zoom = 4
-    return webshot(`${config.SITE_ADDR}/render/${id}?zoom=${zoom}`, filePath, {
+    const zoomFactor = 4
+    return webshot(`${config.SITE_ADDR}/render/${id}`, filePath, {
       windowSize: {
-        width: width*zoom,
-        height: height*zoom,
+        width: width*zoomFactor,
+        height: height*zoomFactor,
       },
       renderDelay: 3000,
-      phantomPath: config.PHANTOM_PATH,
+      takeShotOnCallback: true,
+      zoomFactor,
     })
   })
   .then(() => Promise.all([

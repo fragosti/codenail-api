@@ -21,6 +21,6 @@
     "gm": "^1.23.0",
     "shortid": "^2.2.8",
     "stripe": "^4.22.0",
-    "webshot": "^0.18.0"
+    "webshot": "github:brenden/node-webshot#pull/191/head"
   }
 }
