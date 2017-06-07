@@ -8,6 +8,7 @@ const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
 const img = require('./util/image.js');
 const s3 = require('./lib/s3.js');
+const shortid = require('shortid');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 
@@ -23,7 +24,8 @@ module.exports.order = (event, content, callback) => {
 }
 
 const createOrder = (callback, token, price, description, options, isTest) => {
-  const fileName = `${token.id}.png`
+  const id = shortid.generate()
+  const fileName = `${id}.png`
   const filePath = `/tmp/${fileName}`
   const { width, height } = options
   createChargeFn(isTest)({
@@ -36,7 +38,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
     return dbClient.putAsync({
       TableName: 'codenail-orders',
       Item: {
-        token: token.id,
+        token: id,
         email: token.email,
         charge,
         options
@@ -45,7 +47,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
   })
   .then((data) => {
     const zoom = 4
-    return webshot(`${config.SITE_ADDR}/render/${token.id}?zoom=${zoom}`, filePath, {
+    return webshot(`${config.SITE_ADDR}/render/${id}?zoom=${zoom}`, filePath, {
       windowSize: {
         width: width*zoom,
         height: height*zoom,
@@ -76,7 +78,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
   .then(() => {
     respond(callback, { 
       message: `Processed order`,
-      id: token.id
+      id: id
     })
   })
   .catch((error) => {

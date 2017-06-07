@@ -8,7 +8,7 @@
     "deploy:production": "NODE_ENV=production serverless deploy --stage production",
     "deploy-function:production": "NODE_ENV=production serverless deploy function --stage production --function",
     "logs:production": "NODE_ENV=production serverless logs --stage production -f",
-    "start": "NODE_ENV=development serverless offline start --port 8000 --prefix dev"
+    "start": "NODE_ENV=development serverless offline start --noEnvironment --port 8000 --prefix dev"
   },
   "author": "Francesco Agosti",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "aws-sdk": "^2.58.0",
     "bluebird": "^3.5.0",
     "gm": "^1.23.0",
+    "shortid": "^2.2.8",
     "stripe": "^4.22.0",
     "webshot": "^0.18.0"
   }
