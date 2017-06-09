@@ -52,6 +52,7 @@ const createOrder = (callback, token, price, description, options, isTest) => {
         width: width*zoomFactor,
         height: height*zoomFactor,
       },
+      phantomPath: config.PHANTOM_PATH,
       renderDelay: 3000,
       takeShotOnCallback: true,
       zoomFactor,
