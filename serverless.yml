@@ -62,6 +62,13 @@ package:
 plugins:
   - serverless-offline
 functions:
+  email:
+    handler: hander.email
+    events:
+      - s3:
+        bucket: codenail-order-screenshots
+        event: s3:ObjectCreated:*
+
   order:
     handler: handler.order
     timeout: 20
