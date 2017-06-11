@@ -18,7 +18,7 @@ module.exports.email = (event, content, callback) => {
   sendConfirmationEmail(key)
   .then(() => {
     respond(callback, {
-      message: 'Email send successfully!'
+      message: 'Email sent successfully!'
     })
   })
   .catch((error) => {
