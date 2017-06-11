@@ -27,8 +27,7 @@ module.exports.email = (event, content, callback) => {
   })
 }
 
-const sendConfirmationEmail = () => {
-  const orderId = 'SkB1tMqGZ'
+const sendConfirmationEmail = (orderId) => {
   return getOrder(orderId)
   .then(({ Item }) => {
     const subject = 'Codenail Order Confirmation'
