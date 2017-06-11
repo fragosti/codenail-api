@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const config = require('./config');
 const webshot = Promise.promisify(require('webshot'));
-const fs = Promise.promisifyAll(require("fs"));
+const fs = require('./lib/fs.js');
 const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
 const img = require('./util/image.js');
@@ -11,20 +11,39 @@ const s3 = require('./lib/s3.js');
 const shortid = require('shortid');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
+module.exports.email = (event, content, callback) => {
+
+}
 
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
       const { token, isTest, price, description, options } = JSON.parse(event.body);
-      return createOrder(callback, token, price, description, options, isTest)
+      const id = shortid.generate()
+      return createOrder(id, token, price, description, options, isTest)
+        .then(() => {
+          respond(callback, { 
+            message: `Processed order`,
+            id: id
+          })
+        })
+        .catch((error) => {
+          console.log(error)
+          respondError(callback, { error })
+        })
+
     case 'GET':
       const { id } = event.pathParameters
-      return getOrder(callback, id)
+      return getOrder(id)
+        .then(data => respond(callback, data.Item))
+        .catch((error) => {
+          respondError(callback, { error })
+          console.log(error)
+        })
   }
 }
 
-const createOrder = (callback, token, price, description, options, isTest) => {
-  const id = shortid.generate()
+const createOrder = (id, token, price, description, options, isTest) => {
   const fileName = `${id}.png`
   const filePath = `/tmp/${fileName}`
   const { width, height } = options
@@ -77,26 +96,11 @@ const createOrder = (callback, token, price, description, options, isTest) => {
       })
     })
   ]))
-  .then(() => {
-    respond(callback, { 
-      message: `Processed order`,
-      id: id
-    })
-  })
-  .catch((error) => {
-    console.log(error)
-    respondError(callback, { error })
-  })
 }
 
-const getOrder = (callback, id) => {
+const getOrder = (id) => {
   dbClient.getAsync({
     TableName: 'codenail-orders',
     Key: { token: id },
-  })
-  .then(data => respond(callback, data.Item))
-  .catch((error) => {
-    respondError(callback, { error })
-    console.log(error)
   })
 }
