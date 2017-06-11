@@ -8,11 +8,42 @@ const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
 const img = require('./util/image.js');
 const s3 = require('./lib/s3.js');
+const email = require('./lib/email');
 const shortid = require('shortid');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 module.exports.email = (event, content, callback) => {
+  const key = event.Records[0].s3.object.key.split('.')[0]
+  console.log(key)
+  sendConfirmationEmail(key)
+  .then(() => {
+    respond(callback, {
+      message: 'Email send successfully!'
+    })
+  })
+  .catch((error) => {
+    respondError(callback, { error })
+    console.log(error)
+  })
+}
 
+const sendConfirmationEmail = () => {
+  const orderId = 'SkB1tMqGZ'
+  return getOrder(orderId)
+  .then(({ Item }) => {
+    const subject = 'Codenail Order Confirmation'
+    const { charge } = Item
+    return email.send({
+      to: Item.email,
+      subject,
+    }, 'orderConfirmation', {
+      name: charge.source.name,
+      orderId,
+      orderPrice: `$${charge.amount / 100}.00`,
+      orderPreviewURL: `https://s3-us-west-2.amazonaws.com/codenail-order-previews/${orderId}.png`,
+      orderDescription: charge.description,
+    })
+  })
 }
 
 module.exports.order = (event, content, callback) => {
