@@ -19,12 +19,12 @@ module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
       const { token, isTest, price, description, options } = JSON.parse(event.body);
-      const id = shortid.generate()
-      return createOrder(id, token, price, description, options, isTest)
+      const newId = shortid.generate()
+      return createOrder(newId, token, price, description, options, isTest)
         .then(() => {
           respond(callback, { 
             message: `Processed order`,
-            id: id
+            id: newId
           })
         })
         .catch((error) => {
@@ -43,11 +43,11 @@ module.exports.order = (event, content, callback) => {
   }
 }
 
-const createOrder = (id, token, price, description, options, isTest) => {
-  const fileName = `${id}.png`
+const createOrder = (orderId, token, price, description, options, isTest) => {
+  const fileName = `${orderId}.png`
   const filePath = `/tmp/${fileName}`
   const { width, height } = options
-  createChargeFn(isTest)({
+  return createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
     description: description,
@@ -57,7 +57,7 @@ const createOrder = (id, token, price, description, options, isTest) => {
     return dbClient.putAsync({
       TableName: 'codenail-orders',
       Item: {
-        token: id,
+        token: orderId,
         email: token.email,
         charge,
         options
@@ -66,7 +66,7 @@ const createOrder = (id, token, price, description, options, isTest) => {
   })
   .then((data) => {
     const zoomFactor = 4
-    return webshot(`${config.SITE_ADDR}/render/${id}`, filePath, {
+    return webshot(`${config.SITE_ADDR}/render/${orderId}`, filePath, {
       windowSize: {
         width: width*zoomFactor,
         height: height*zoomFactor,
@@ -99,7 +99,7 @@ const createOrder = (id, token, price, description, options, isTest) => {
 }
 
 const getOrder = (id) => {
-  dbClient.getAsync({
+  return dbClient.getAsync({
     TableName: 'codenail-orders',
     Key: { token: id },
   })
