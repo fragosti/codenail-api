@@ -63,7 +63,7 @@ plugins:
   - serverless-offline
 functions:
   email:
-    handler: hander.email
+    handler: handler.email
     events:
       - s3:
         bucket: codenail-order-screenshots
