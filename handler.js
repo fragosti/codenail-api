@@ -97,9 +97,9 @@ const createOrder = (orderId, token, price, description, options, isTest) => {
   .then((data) => {
     const zoomFactor = 4
     return webshot(`${config.SITE_ADDR}/render/${orderId}`, filePath, {
-      windowSize: {
-        width: width*zoomFactor,
-        height: height*zoomFactor,
+      windowSize: { // Add padding to picture
+        width: (width + 8)*zoomFactor,
+        height: (height + 8)*zoomFactor,
       },
       phantomPath: config.PHANTOM_PATH,
       renderDelay: 3000,
