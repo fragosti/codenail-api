@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const config = require('./config');
 const webshot = Promise.promisify(require('webshot'));
 const fs = require('./lib/fs.js');
+const pfOrder = require('./lib/printful/api.js');
 const createChargeFn = require('./lib/stripe.js');
 const dbClient = require('./db/dynamodb.js').client;
 const img = require('./util/image.js');
@@ -48,9 +49,9 @@ const sendConfirmationEmail = (orderId) => {
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
-      const { token, isTest, price, description, options } = JSON.parse(event.body);
+      const { token, addresses, isTest, price, description, options } = JSON.parse(event.body);
       const newId = shortid.generate()
-      return createOrder(newId, token, price, description, options, isTest)
+      return createOrder(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development')
         .then(() => {
           respond(callback, { 
             message: `Processed order`,
@@ -73,10 +74,10 @@ module.exports.order = (event, content, callback) => {
   }
 }
 
-const createOrder = (orderId, token, price, description, options, isTest) => {
+const createOrder = (orderId, token, addresses, price, description, options, isTest) => {
   const fileName = `${orderId}.png`
   const filePath = `/tmp/${fileName}`
-  const { width, height } = options
+  const { width, height, size } = options
   return createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
@@ -97,7 +98,7 @@ const createOrder = (orderId, token, price, description, options, isTest) => {
   .then((data) => {
     const zoomFactor = 4
     return webshot(`${config.SITE_ADDR}/render/${orderId}`, filePath, {
-      windowSize: { // Add padding to picture
+      windowSize: { // Add padding to picture. Dependency on frontend 4px padding.
         width: (width + 8)*zoomFactor,
         height: (height + 8)*zoomFactor,
       },
@@ -126,6 +127,24 @@ const createOrder = (orderId, token, price, description, options, isTest) => {
       })
     })
   ]))
+  .then(() => {
+    const { 
+      shipping_name, 
+      shipping_address_line1, 
+      shipping_address_city,
+      shipping_address_state,
+      shipping_address_country_code,
+      shipping_address_zip
+    } = addresses
+    return pfOrder(orderId, size, {
+      name: shipping_name,
+      address1: shipping_address_line1,
+      city: shipping_address_city,
+      state_code: shipping_address_state,
+      country_code: shipping_address_country_code,
+      zip: shipping_address_zip
+    }, { isTest })
+  })
 }
 
 const getOrder = (id) => {
