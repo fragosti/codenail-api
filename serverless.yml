@@ -68,6 +68,10 @@ functions:
       - s3:
         bucket: codenail-order-previews
         event: s3:ObjectCreated:*
+      - http:
+        path: email
+        method: post
+        cors: true
 
   order:
     handler: handler.order

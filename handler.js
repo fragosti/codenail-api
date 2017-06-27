@@ -14,9 +14,16 @@ const shortid = require('shortid');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 module.exports.email = (event, content, callback) => {
-  const key = event.Records[0].s3.object.key.split('.')[0]
-  console.log(key)
-  sendConfirmationEmail(key)
+  let emailPromise = null
+  if (event.httpMethod === 'POST') {
+    const { shipment, order } = JSON.parse(event.body).data;
+    emailPromise = sendShippingConfirmationEmail(shipment, order)
+  } else {
+    const key = event.Records[0].s3.object.key.split('.')[0]
+    console.log(key)
+    emailPromise = sendOrderConfirmationEmail(key)
+  }
+  emailPromise
   .then(() => {
     respond(callback, {
       message: 'Email sent successfully!'
@@ -28,7 +35,28 @@ module.exports.email = (event, content, callback) => {
   })
 }
 
-const sendConfirmationEmail = (orderId) => {
+const sendShippingConfirmationEmail = (shipment, order) => {
+  const { tracking_number, tracking_url } = shipment
+  const { external_id, recipient } = order
+  const { name, address1, city, state_code, zip, country_code, email } = recipient
+  return send({
+    to: email,
+    subject: 'Your Codenail poster has shipped!',
+  }, 'shippingConfirmation', 
+  {
+    name,
+    orderId: external_id,
+    tracking_number,
+    tracking_url,
+    address1,
+    city,
+    state_code,
+    zip,
+    country: country_code
+  })
+}
+
+const sendOrderConfirmationEmail = (orderId) => {
   return getOrder(orderId)
   .then(({ Item }) => {
     const subject = 'Codenail Order Confirmation'
@@ -142,7 +170,8 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
       city: shipping_address_city,
       state_code: shipping_address_state,
       country_code: shipping_address_country_code,
-      zip: shipping_address_zip
+      zip: shipping_address_zip,
+      email: token.email, // important for printful shipment confirmation webhook
     }, { isTest })
   })
 }
