@@ -40,6 +40,9 @@
 			padding:0;
 			width:100%;
 		}
+		.mcnPreviewText{
+			display:none !important;
+		}
 		#outlook a{
 			padding:0;
 		}
@@ -549,7 +552,7 @@
                         
                         <td valign="top" class="mcnTextContent" style="padding: 0px 18px 9px; text-align: left;">
                         
-                            <h1>Thank you for your order!</h1>
+                            <h1>Your poster has shipped!</h1>
 
                         </td>
                     </tr>
@@ -602,7 +605,7 @@
                         
                             <p>Hi {{name}},<br>
 <br>
-We have received your order for your {{orderDescription}}. Your shipping is <strong>free </strong>and will take 3-5 business days after fulfillment. As soon as your order is shipped you will receive a notification email with tracking information. We really hope you enjoy your new poster! Orders can be cancelled any time before shipping by emailing us at <i> fulfillment@codenail.com</i>.<br>
+Your poster&nbsp;has shipped.&nbsp;Please allow&nbsp;3-5&nbsp;business days&nbsp;for the package to arrive. We really hope you enjoy your new poster!&nbsp;<br>
 <br>
 Best,<br>
 The Codenail team</p>
@@ -641,7 +644,47 @@ The Codenail team</p>
                                 <tbody><tr>
                                     <td valign="top" class="mcnTextContent" style="color: #F2F2F2;font-family: Helvetica;font-size: 14px;font-weight: normal;text-align: center;">
                                         <strong>Order Id:</strong> {{orderId}}<br>
-<strong>Order Total:</strong> {{orderPrice}}
+<strong>Tracking Number: </strong><a href="{{tracking_url}}">{{tracking_number}}</a>
+                                    </td>
+                                </tr>
+                            </tbody></table>
+                        </td>
+                    </tr>
+                </tbody></table>
+				<!--[if gte mso 9]>
+				</td>
+				<![endif]-->
+                
+				<!--[if gte mso 9]>
+                </tr>
+                </table>
+				<![endif]-->
+            </td>
+        </tr>
+    </tbody>
+</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnBoxedTextBlock" style="min-width:100%;">
+    <!--[if gte mso 9]>
+	<table align="center" border="0" cellspacing="0" cellpadding="0" width="100%">
+	<![endif]-->
+	<tbody class="mcnBoxedTextBlockOuter">
+        <tr>
+            <td valign="top" class="mcnBoxedTextBlockInner">
+                
+				<!--[if gte mso 9]>
+				<td align="center" valign="top" ">
+				<![endif]-->
+                <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;" class="mcnBoxedTextContentContainer">
+                    <tbody><tr>
+                        
+                        <td style="padding-top:9px; padding-left:18px; padding-bottom:9px; padding-right:18px;">
+                        
+                            <table border="0" cellpadding="18" cellspacing="0" class="mcnTextContentContainer" width="100%" style="min-width:100% !important;">
+                                <tbody><tr>
+                                    <td valign="top" class="mcnTextContent" style="color: #969696;font-family: Helvetica;font-size: 14px;font-weight: normal;text-align: center;">
+                                        Shipping to:<br>
+{{address1}},&nbsp;<br>
+{{city}},&nbsp;{{state_code}},<br>
+{{zip}}, {{country}}
                                     </td>
                                 </tr>
                             </tbody></table>
@@ -662,24 +705,6 @@ The Codenail team</p>
 </table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock" style="min-width:100%;">
     <tbody class="mcnDividerBlockOuter">
         <tr>
-            <td class="mcnDividerBlockInner" style="min-width: 100%; padding: 9px 18px 0px;">
-                <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;">
-                    <tbody><tr>
-                        <td>
-                            <span></span>
-                        </td>
-                    </tr>
-                </tbody></table>
-<!--            
-                <td class="mcnDividerBlockInner" style="padding: 18px;">
-                <hr class="mcnDividerContent" style="border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;" />
--->
-            </td>
-        </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock" style="min-width:100%;">
-    <tbody class="mcnDividerBlockOuter">
-        <tr>
             <td class="mcnDividerBlockInner" style="min-width: 100%; padding: 18px 18px 0px;">
                 <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width:100%;">
                     <tbody><tr>
@@ -694,24 +719,6 @@ The Codenail team</p>
 -->
             </td>
         </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnImageBlock" style="min-width:100%;">
-    <tbody class="mcnImageBlockOuter">
-            <tr>
-                <td valign="top" style="padding:9px" class="mcnImageBlockInner">
-                    <table align="left" width="100%" border="0" cellpadding="0" cellspacing="0" class="mcnImageContentContainer" style="min-width:100%;">
-                        <tbody><tr>
-                            <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
-                                
-                                    
-                                        <img align="center" alt="" src="{{orderPreviewURL}}" width="564" style="max-width:1128px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
-                                    
-                                
-                            </td>
-                        </tr>
-                    </tbody></table>
-                </td>
-            </tr>
     </tbody>
 </table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnBoxedTextBlock" style="min-width:100%;">
     <!--[if gte mso 9]>
@@ -803,7 +810,7 @@ Please don't hesitate to email us at <i>support@codenail.com</i> or visit our <a
                                                                         <tbody><tr>
                                                                             
                                                                                 <td align="center" valign="middle" width="24" class="mcnFollowIconContent">
-                                                                                    <a href="http://www.facebook.com/codenail" target="_blank"><img src="https://cdn-images.mailchimp.com/icons/social-block-v2/outline-light-facebook-48.png" style="display:block;" height="24" width="24" class=""></a>
+                                                                                    <a href="http://www.facebook.com/codenail/" target="_blank"><img src="https://cdn-images.mailchimp.com/icons/social-block-v2/outline-light-facebook-48.png" style="display:block;" height="24" width="24" class=""></a>
                                                                                 </td>
                                                                             
                                                                             
@@ -903,6 +910,7 @@ Please don't hesitate to email us at <i>support@codenail.com</i> or visit our <a
                     <tbody><tr>
                         
                         <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
+                        
                             <em>Copyright © 2017 Codenail, All rights reserved.</em><br>
                         </td>
                     </tr>
