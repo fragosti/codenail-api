@@ -65,9 +65,9 @@ functions:
   email:
     handler: handler.email
     events:
-      - s3:
-          bucket: codenail-order-previews
-          event: s3:ObjectCreated:*
+      # - s3:
+          # bucket: codenail-order-previews
+          # event: s3:ObjectCreated:*
       - http:
           path: email
           method: post
