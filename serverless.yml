@@ -65,7 +65,7 @@ functions:
   email:
     handler: handler.email
     events:
-      # - s3:
+      # - s3: // TODO: Fix
           # bucket: codenail-order-previews
           # event: s3:ObjectCreated:*
       - http:

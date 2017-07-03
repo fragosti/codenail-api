@@ -164,7 +164,7 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
       shipping_address_country_code,
       shipping_address_zip
     } = addresses
-    return pfOrder(orderId, size, {
+    return pfOrder(orderId, size, options.framed, {
       name: shipping_name,
       address1: shipping_address_line1,
       city: shipping_address_city,
