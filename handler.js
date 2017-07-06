@@ -38,9 +38,9 @@ module.exports.email = (event, content, callback) => {
 const sendShippingConfirmationEmail = (shipment, order) => {
   const { tracking_number, tracking_url } = shipment
   const { external_id, recipient } = order
-  const { name, address1, city, state_code, zip, country_code, email } = recipient
-  return send({
-    to: email,
+  const { name, address1, city, state_code, zip, country_code } = recipient
+  return email.send({
+    to: recipient.email,
     subject: 'Your Codenail poster has shipped!',
   }, 'shippingConfirmation', 
   {
