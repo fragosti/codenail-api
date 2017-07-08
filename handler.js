@@ -124,7 +124,7 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
     })
   })
   .then((data) => {
-    const zoomFactor = 4
+    const zoomFactor = img.zoomForSize(size)
     const padding = 5 // padding in px
     return webshot(`${config.SITE_ADDR}/render/${orderId}?padding=${padding}`, filePath, {
       windowSize: { 
