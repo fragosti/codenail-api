@@ -19,6 +19,7 @@ const zoomForSize = (size) => {
     case 36:
       return 7
     case 24:
+    case 20:
       return 5
     case 12:
     case 10: 
