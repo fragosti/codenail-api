@@ -125,7 +125,7 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
   })
   .then((data) => {
     const zoomFactor = img.zoomForSize(size)
-    const margin = 4 // margin in px
+    const margin = 6 // margin in px
     const yMargin = (height/width)*margin
     return webshot(`${config.SITE_ADDR}/render/${orderId}?margin=${margin}`, filePath, {
       windowSize: { 
