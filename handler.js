@@ -124,7 +124,11 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
     })
   })
   .then((data) => {
-    const zoomFactor = img.zoomForSize(size)
+    const isPhone = width < 500
+    let zoomFactor = img.zoomForSize(size)
+    if (isPhone) {
+      zoomFactor *= 2
+    }
     const margin = 6 // margin in px
     const yMargin = (height/width)*margin
     return webshot(`${config.SITE_ADDR}/render/${orderId}?margin=${margin}`, filePath, {
@@ -133,7 +137,7 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
         height: (height + yMargin*2)*zoomFactor,
       },
       phantomPath: config.PHANTOM_PATH,
-      renderDelay: 3000,
+      renderDelay: 2000,
       takeShotOnCallback: true,
       zoomFactor,
     })
