@@ -188,3 +188,49 @@ const getOrder = (id) => {
     Key: { token: id },
   })
 }
+
+
+module.exports.share = (event, content, callback) => {
+  switch(event.httpMethod) {
+    case 'POST':
+      const { options } = JSON.parse(event.body);
+      const newId = shortid.generate()
+      return createShare(newId, options)
+        .then(() => {
+          respond(callback, {
+            message: 'Share saved successfully',
+            id: newId
+          })
+        })
+        .catch((error) => {
+          respondError(callback, { error })
+        })
+    case 'GET':
+      const { id } = event.pathParameters
+      return getShare(id)
+        .then((data) => {
+          respond(callback, data.Item)
+        })
+        .catch((error) => {
+          console.log(error)
+          respondError(callback, { error })
+        })
+  }
+}
+
+const createShare = (id, options) => {
+  return dbClient.putAsync({
+    TableName: 'codenail-shares',
+    Item: {
+      id,
+      options,
+    }
+  })
+}
+
+const getShare = (id) => {
+  return dbClient.getAsync({
+    TableName: 'codenail-shares',
+    Key: { id }
+  })
+}

@@ -62,6 +62,21 @@ package:
 plugins:
   - serverless-offline
 functions:
+  share: 
+    handler: handler.share
+    events:
+      - http:
+          path: share
+          method: post
+          cors: true
+      - http:
+          path: share/{id}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                id: true
   email:
     handler: handler.email
     events:
