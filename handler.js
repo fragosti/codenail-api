@@ -11,6 +11,7 @@ const img = require('./util/image.js');
 const s3 = require('./lib/s3.js');
 const email = require('./lib/email');
 const shortid = require('shortid');
+const moment = require('moment');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 module.exports.email = (event, content, callback) => {
@@ -223,6 +224,7 @@ const createShare = (id, options) => {
     TableName: 'codenail-shares',
     Item: {
       id,
+      ttl: moment().add(7,'days').unix(),
       options,
     }
   })
