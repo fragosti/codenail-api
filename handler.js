@@ -78,9 +78,9 @@ const sendOrderConfirmationEmail = (orderId) => {
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
-      const { token, addresses, isTest, price, description, options } = JSON.parse(event.body);
+      const { token, addresses, isTest, isPhone, price, description, options } = JSON.parse(event.body);
       const newId = shortid.generate()
-      return createOrder(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development')
+      return createOrder(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development', isPhone)
         .then(() => {
           respond(callback, { 
             message: `Processed order`,
@@ -103,7 +103,7 @@ module.exports.order = (event, content, callback) => {
   }
 }
 
-const createOrder = (orderId, token, addresses, price, description, options, isTest) => {
+const createOrder = (orderId, token, addresses, price, description, options, isTest, isPhone) => {
   const fileName = `${orderId}.png`
   const filePath = `/tmp/${fileName}`
   const { width, height, size } = options
@@ -125,7 +125,6 @@ const createOrder = (orderId, token, addresses, price, description, options, isT
     })
   })
   .then((data) => {
-    const isPhone = width < 500
     let zoomFactor = img.zoomForSize(size)
     if (isPhone) {
       zoomFactor *= 2
