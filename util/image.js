@@ -12,6 +12,10 @@ const resize = (imgPath, height, width) => {
   })
 }
 
+const takeScreenShot = (options) => {
+
+}
+
 const zoomForSize = (size) => {
   const splitSize = size.split('x')
   const maxDim = Math.max(parseInt(splitSize[0], 10), parseInt(splitSize[1], 10))

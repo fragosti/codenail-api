@@ -1,17 +1,9 @@
 'use strict';
 
-const Promise = require('bluebird');
-const config = require('./config');
-const webshot = Promise.promisify(require('webshot'));
-const fs = require('./lib/fs.js');
-const pfOrder = require('./lib/printful/api.js').order;
-const createChargeFn = require('./lib/stripe.js');
-const dbClient = require('./db/dynamodb.js').client;
-const img = require('./util/image.js');
-const s3 = require('./lib/s3.js');
 const email = require('./lib/email');
+const share = require('./util/share.js');
+const order = require('./util/order.js');
 const shortid = require('shortid');
-const moment = require('moment');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 module.exports.email = (event, content, callback) => {
@@ -80,7 +72,7 @@ module.exports.order = (event, content, callback) => {
     case 'POST':
       const { token, addresses, isTest, isPhone, price, description, options } = JSON.parse(event.body);
       const newId = shortid.generate()
-      return createOrder(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development', isPhone)
+      return order.create(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development', isPhone)
         .then(() => {
           respond(callback, { 
             message: `Processed order`,
@@ -94,7 +86,7 @@ module.exports.order = (event, content, callback) => {
 
     case 'GET':
       const { id } = event.pathParameters
-      return getOrder(id)
+      return order.get(id)
         .then(data => respond(callback, data.Item))
         .catch((error) => {
           respondError(callback, { error })
@@ -103,99 +95,13 @@ module.exports.order = (event, content, callback) => {
   }
 }
 
-const createOrder = (orderId, token, addresses, price, description, options, isTest, isPhone) => {
-  const fileName = `${orderId}.png`
-  const filePath = `/tmp/${fileName}`
-  const { width, height, size } = options
-  return createChargeFn(isTest)({
-    amount: price,
-    currency: 'usd',
-    description: description,
-    source: token.id,
-  })
-  .then((charge) => {
-    return dbClient.putAsync({
-      TableName: 'codenail-orders',
-      Item: {
-        token: orderId,
-        email: token.email,
-        charge,
-        options
-      }
-    })
-  })
-  .then((data) => {
-    let zoomFactor = img.zoomForSize(size)
-    if (isPhone) {
-      zoomFactor *= 2
-    }
-    const margin = 6 // margin in px
-    const yMargin = (height/width)*margin
-    return webshot(`${config.SITE_ADDR}/render/${orderId}?margin=${margin}`, filePath, {
-      windowSize: { 
-        width: (width + margin*2)*zoomFactor,
-        height: (height + yMargin*2)*zoomFactor,
-      },
-      phantomPath: config.PHANTOM_PATH,
-      renderDelay: 2000,
-      takeShotOnCallback: true,
-      zoomFactor,
-    })
-  })
-  .then(() => Promise.all([
-    fs.readFileAsync(filePath).then((screenShot) => {
-      return s3.putObjectAsync({
-        Bucket: 'codenail-order-screenshots',
-        Key: fileName,
-        Body: screenShot,
-        ContentType: 'image/png',
-      })
-    }),
-    img.resize(filePath, Math.round(width), Math.round(height))
-    .then((orderPreview) => {
-      return s3.putObjectAsync({
-        Bucket: 'codenail-order-previews',
-        Key: fileName,
-        Body: orderPreview,
-        ContentType: 'image/png',
-      })
-    })
-  ]))
-  .then(() => {
-    const { 
-      shipping_name, 
-      shipping_address_line1, 
-      shipping_address_city,
-      shipping_address_state,
-      shipping_address_country_code,
-      shipping_address_zip
-    } = addresses
-    return pfOrder(orderId, size, options.framed, {
-      name: shipping_name,
-      address1: shipping_address_line1,
-      city: shipping_address_city,
-      state_code: shipping_address_state,
-      country_code: shipping_address_country_code,
-      zip: shipping_address_zip,
-      email: token.email, // important for printful shipment confirmation webhook
-    }, { isTest })
-  })
-}
-
-const getOrder = (id) => {
-  return dbClient.getAsync({
-    TableName: 'codenail-orders',
-    Key: { token: id },
-  })
-}
-
 
 module.exports.share = (event, content, callback) => {
   switch(event.httpMethod) {
     case 'POST':
       const { options } = JSON.parse(event.body);
       const newId = shortid.generate()
-      return createShare(newId, options)
+      return share.create(newId, options)
         .then(() => {
           respond(callback, {
             message: 'Share saved successfully',
@@ -207,7 +113,7 @@ module.exports.share = (event, content, callback) => {
         })
     case 'GET':
       const { id } = event.pathParameters
-      return getShare(id)
+      return share.get(id)
         .then((data) => {
           respond(callback, data.Item)
         })
@@ -216,22 +122,4 @@ module.exports.share = (event, content, callback) => {
           respondError(callback, { error })
         })
   }
-}
-
-const createShare = (id, options) => {
-  return dbClient.putAsync({
-    TableName: 'codenail-shares',
-    Item: {
-      id,
-      ttl: moment().add(7,'days').unix(),
-      options,
-    }
-  })
-}
-
-const getShare = (id) => {
-  return dbClient.getAsync({
-    TableName: 'codenail-shares',
-    Key: { id }
-  })
 }
