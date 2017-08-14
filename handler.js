@@ -51,7 +51,7 @@ const sendShippingConfirmationEmail = (shipment, order) => {
 }
 
 const sendOrderConfirmationEmail = (orderId) => {
-  return getOrder(orderId)
+  return order.get(orderId)
   .then(({ Item }) => {
     const subject = 'Codenail Order Confirmation'
     const { charge, justDownload } = Item
