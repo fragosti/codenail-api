@@ -88,6 +88,14 @@ functions:
           method: post
           cors: true
 
+  preview:
+    handler: handler.preview
+    events: 
+      - http:
+          path: preview
+          method: post
+          cors: true
+
   order:
     handler: handler.order
     timeout: 20

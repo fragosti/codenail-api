@@ -2,6 +2,7 @@
 
 const email = require('./lib/email');
 const share = require('./util/share.js');
+const preview = require('./util/preview.js');
 const order = require('./util/order.js');
 const shortid = require('shortid');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
@@ -95,6 +96,21 @@ module.exports.order = (event, content, callback) => {
   }
 }
 
+module.exports.preview = (event, content, callback) => {
+  switch(event.httpMethod) {
+    case 'POST':
+      const { options, isPhone } = JSON.parse(event.body);
+      return preview.create(options, isPhone)
+        .then(({ previewId }) => {
+          respond(callback, {
+            previewId
+          })
+        })
+        .catch((error) => {
+          respondError(callback, { error })
+        })
+  }
+}
 
 module.exports.share = (event, content, callback) => {
   switch(event.httpMethod) {
