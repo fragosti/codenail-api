@@ -54,15 +54,17 @@ const sendOrderConfirmationEmail = (orderId) => {
   return getOrder(orderId)
   .then(({ Item }) => {
     const subject = 'Codenail Order Confirmation'
-    const { charge } = Item
+    const { charge, justDownload } = Item
     return email.send({
       to: Item.email,
       subject,
     }, 'orderConfirmation', {
       name: charge.source.name,
       orderId,
+      justDownload,
       orderPrice: `$${charge.amount / 100}.00`,
       orderPreviewURL: `https://s3-us-west-2.amazonaws.com/codenail-order-previews/${orderId}.png`,
+      orderDownloadURL: `https://s3-us-west-2.amazonaws.com/codenail-order-screenshots/${orderId}.png`,
       orderDescription: charge.description,
     })
   })
@@ -71,9 +73,9 @@ const sendOrderConfirmationEmail = (orderId) => {
 module.exports.order = (event, content, callback) => {
   switch (event.httpMethod) {
     case 'POST':
-      const { token, addresses, isTest, isPhone, price, description, options } = JSON.parse(event.body);
+      const { token, addresses, isTest, isPhone, price, description, options, justDownload } = JSON.parse(event.body);
       const newId = shortid.generate()
-      return order.create(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development', isPhone)
+      return order.create(newId, token, addresses, price, description, options, isTest || process.env.NODE_ENV == 'development', isPhone, justDownload)
         .then(() => {
           respond(callback, { 
             message: `Processed order`,
