@@ -5,6 +5,7 @@ const share = require('./util/share.js');
 const preview = require('./util/preview.js');
 const order = require('./util/order.js');
 const shortid = require('shortid');
+const hash = require('./util/hash.js');
 const { respond, respondError, respondWarning} = require('./util/respond.js');
 
 module.exports.email = (event, content, callback) => {
@@ -101,16 +102,22 @@ module.exports.order = (event, content, callback) => {
 module.exports.preview = (event, content, callback) => {
   switch(event.httpMethod) {
     case 'POST':
+      const id = hash(event.body)
       const { options, isPhone } = JSON.parse(event.body);
-      return preview.create(options, isPhone)
-        .then(({ previewId }) => {
-          respond(callback, {
-            previewId
-          })
+      return share.get(id).then((share) => {
+        if (Object.keys(share).length) {
+          return { previewId: id }
+        }
+        return preview.create(options, isPhone, id)
+      })
+      .then(({ previewId }) => {
+        respond(callback, {
+          previewId
         })
-        .catch((error) => {
-          respondError(callback, { error })
-        })
+      })
+      .catch((error) => {
+        respondError(callback, { error })
+      })
   }
 }
 
