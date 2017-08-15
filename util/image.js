@@ -37,7 +37,6 @@ const takeScreenShot = (isPhone, options, id) => {
         height: (height + yMargin*2)*zoomFactor,
       },
       phantomPath: config.PHANTOM_PATH,
-      renderDelay: 2000,
       takeShotOnCallback: true,
       zoomFactor,
     }).then(() => ({
