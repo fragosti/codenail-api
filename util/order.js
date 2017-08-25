@@ -58,7 +58,7 @@ const create = (orderId, token, addresses, price, description, options, isTest, 
         country_code: shipping_address_country_code,
         zip: shipping_address_zip,
         email: token.email, // important for printful shipment confirmation webhook
-      }, { isTest })
+      }, options.amount, { isTest })
     })
   }
   

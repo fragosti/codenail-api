@@ -98,7 +98,7 @@ functions:
 
   order:
     handler: handler.order
-    timeout: 20
+    timeout: 25
     events:
       - http: 
           path: order

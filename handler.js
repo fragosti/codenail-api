@@ -93,8 +93,8 @@ module.exports.order = (event, content, callback) => {
       return order.get(id)
         .then(data => respond(callback, data.Item))
         .catch((error) => {
-          respondError(callback, { error })
           console.log(error)
+          respondError(callback, { error })
         })
   }
 }
