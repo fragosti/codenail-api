@@ -25,16 +25,16 @@ const takeScreenShot = (isPhone, options, id) => {
     const fileName = `${previewId}.png`
     const filePath = `/tmp/${fileName}`
     const { productType, width, height, size } = options
-    let zoomFactor = zoomForSize(productType, size)
+    let { zoomFactor, scale } = zoomFactorAndScaleForSize(productType, size)
     if (isPhone) {
       zoomFactor *= 2
     }
     const margin = 6
     const yMargin = (height/width)*margin
-    return webshot(`${config.SITE_ADDR}/render/${previewId}?margin=${margin}`, filePath, {
+    return webshot(`${config.SITE_ADDR}/render/${previewId}?margin=${margin}&scale=${scale}`, filePath, {
       windowSize: { 
-        width: (width + margin*2)*zoomFactor,
-        height: (height + yMargin*2)*zoomFactor,
+        width: (width*scale + margin*2)*zoomFactor,
+        height: (height*scale + yMargin*2)*zoomFactor,
       },
       phantomPath: config.PHANTOM_PATH,
       takeShotOnCallback: true,
@@ -65,26 +65,38 @@ const upload = (fileName, filePath, bucket, newDims) => {
   })
 }
 
-const zoomForSize = (productType, size) => {
+const zoomFactorAndScaleForSize = (productType, size) => {
   if (productType === 'shirt') {
-    return 6
+    return {
+      scale: 3,
+      zoomFactor: 4
+    }
   }
   const splitSize = size.split('x')
   const maxDim = Math.max(parseInt(splitSize[0], 10), parseInt(splitSize[1], 10))
   switch(maxDim) {
     case 36:
-      return 7
+      return {
+        scale: 2,
+        zoomFactor: 5,
+      }
     case 24:
     case 20:
-      return 5
+      return {
+        scale: 2,
+        zoomFactor: 4,
+      }
     default:
-      return 4
+      return {
+        scale: 2,
+        zoomFactor: 3
+      }
   }
 }
 
 module.exports = {
   resize,
-  zoomForSize,
+  zoomFactorAndScaleForSize,
   takeScreenShot,
   upload,
 }
