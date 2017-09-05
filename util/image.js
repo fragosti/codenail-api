@@ -24,8 +24,8 @@ const takeScreenShot = (isPhone, options, id) => {
   return share.create(previewId, options).then(() => {
     const fileName = `${previewId}.png`
     const filePath = `/tmp/${fileName}`
-    const { width, height, size } = options
-    let zoomFactor = zoomForSize(size)
+    const { productType, width, height, size } = options
+    let zoomFactor = zoomForSize(productType, size)
     if (isPhone) {
       zoomFactor *= 2
     }
@@ -65,7 +65,10 @@ const upload = (fileName, filePath, bucket, newDims) => {
   })
 }
 
-const zoomForSize = (size) => {
+const zoomForSize = (productType, size) => {
+  if (productType === 'shirt') {
+    return 6
+  }
   const splitSize = size.split('x')
   const maxDim = Math.max(parseInt(splitSize[0], 10), parseInt(splitSize[1], 10))
   switch(maxDim) {

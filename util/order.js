@@ -12,9 +12,8 @@ const get = (id) => {
   })
 }
 
-
 const create = (orderId, token, addresses, price, description, options, isTest, isPhone, justDownload) => {
-  const { width, height, size } = options
+  const { width, height } = options
   const chargeAndUpload = createChargeFn(isTest)({
     amount: price,
     currency: 'usd',
@@ -50,7 +49,7 @@ const create = (orderId, token, addresses, price, description, options, isTest, 
         shipping_address_country_code,
         shipping_address_zip
       } = addresses
-      return pfOrder(orderId, size, options.framed, {
+      return pfOrder(orderId, options, {
         name: shipping_name,
         address1: shipping_address_line1,
         city: shipping_address_city,
@@ -58,7 +57,7 @@ const create = (orderId, token, addresses, price, description, options, isTest, 
         country_code: shipping_address_country_code,
         zip: shipping_address_zip,
         email: token.email, // important for printful shipment confirmation webhook
-      }, options.amount, { isTest })
+      }, isTest )
     })
   }
   
