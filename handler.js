@@ -55,7 +55,8 @@ const sendOrderConfirmationEmail = (orderId) => {
   return order.get(orderId)
   .then(({ Item }) => {
     const subject = 'Codenail Order Confirmation'
-    const { charge, justDownload } = Item
+    const { charge, justDownload, options } = Item
+    const isShirtOrder = options.productType === 'shirt'
     return email.send({
       to: Item.email,
       subject,
@@ -64,7 +65,7 @@ const sendOrderConfirmationEmail = (orderId) => {
       orderId,
       justDownload,
       orderPrice: `$${charge.amount / 100}.00`,
-      orderPreviewURL: `https://s3-us-west-2.amazonaws.com/codenail-order-previews/${orderId}.png`,
+      orderPreviewURL: isShirtOrder ? null : `https://s3-us-west-2.amazonaws.com/codenail-order-previews/${orderId}.png`,
       orderDownloadURL: `https://s3-us-west-2.amazonaws.com/codenail-order-screenshots/${orderId}.png`,
       orderDescription: charge.description,
     })
