@@ -7,7 +7,7 @@ const sendShippingConfirmationEmail = (shipment, order) => {
   const { name, address1, city, state_code, zip, country_code } = recipient
   return email.send({
     to: recipient.email,
-    subject: 'Your Codenail poster has shipped!',
+    subject: 'Your Codenail order has shipped!',
   }, 'shippingConfirmation', 
   {
     name,
